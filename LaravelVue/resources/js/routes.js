@@ -4,6 +4,9 @@ import ContactPage from "./pages/ContactPage.vue";
 import AboutPage from "./pages/AboutPage.vue";
 import Dashboard from "./components/Dashboard.vue";
 import Users from "./components/Users.vue";
+
+
+
 const routes = [
     {
         path: '/dashboard',

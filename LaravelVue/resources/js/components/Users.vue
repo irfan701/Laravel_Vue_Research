@@ -37,34 +37,22 @@
                                         <th> Name</th>
                                         <th>Email</th>
                                         <th>Type </th>
-                                        <th>Modify</th>
+                                        <th>Register Time </th>
                                         <th>Status</th>
                                         <th class="text-right">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
+                                    <tr v-for="user in users" :key="user.id">
+                                        <td>{{user.name}}</td>
+                                        <td>{{user.email}}</td>
+                                        <td>{{user.type}}</td>
+
+<!--                                        <td><span class="text-primary d-block">{{user.created_at|moment}}-->
+<!--														AM</span></td>-->
+                                        <td>{{user.created_at }}</td>
                                         <td>
-                                            <h2 class="table-avatar">
-                                                <a href="profile.html" class="avatar avatar-sm mr-2"><img
-                                                    class="avatar-img rounded-circle"
-                                                    src="assets/img/profiles/avatar-08.jpg"
-                                                    alt="User Image"></a>
-                                                <a href="profile.html">James Amen</a>
-                                            </h2>
-                                        </td>
-                                        <td>Maths</td>
-                                        <td>
-                                            <h2 class="table-avatar">
-                                                <a href="profile.html" class="avatar avatar-sm mr-2"><img
-                                                    class="avatar-img rounded-circle"
-                                                    src="assets/img/user/user.jpg" alt="User Image"></a>
-                                                <a href="profile.html">Jonathan Doe </a>
-                                            </h2>
-                                        </td>
-                                        <td>9 Nov 2019 <span class="text-primary d-block">11.00 AM - 11.15
-														AM</span></td>
-                                        <td>
+
                                             <div class="status-toggle">
                                                 <input type="checkbox" id="status_1" class="check" checked>
                                                 <label for="status_1" class="checktoggle">checkbox</label>
@@ -113,33 +101,52 @@
                         </div>
                         <div class="card">
                             <div class="card-body">
-                                <form id="update_category" method="post" autocomplete="off"
-                                      enctype="multipart/form-data" novalidate="novalidate" class="bv-form"><button
-                                    type="submit" class="bv-hidden-submit"
-                                    style="display: none; width: 0px; height: 0px;"></button>
-                                    <input type="hidden" name="csrf_token_name"
-                                           value="104dbdaf79d7d8e21e4ae9991d166669">
-                                    <div class="form-group">
-                                        <label>Category Name</label>
-                                        <input class="form-control" type="text" value="Painting" name="category_name"
-                                               id="category_name" data-bv-field="category_name">
-                                        <input class="form-control" type="hidden" value="8" name="category_id"
-                                               id="category_id">
-                                        <small class="help-block" data-bv-validator="remote" data-bv-for="category_name"
-                                               data-bv-result="NOT_VALIDATED" style="display: none;">This category name is
-                                            already exist</small><small class="help-block" data-bv-validator="notEmpty"
-                                                                        data-bv-for="category_name" data-bv-result="NOT_VALIDATED"
-                                                                        style="display: none;">Please enter category name</small></div>
-                                    <div class="form-group">
-                                        <label>Category Image</label>
-                                        <input class="form-control" type="file" name="category_image"
-                                               id="category_image">
+                                <form @submit.prevent="createUser" @keydown="form.onKeydown($event)">
+                                    <AlertError :form="form" />
+                                    <!-- <AlertErrors :form="form" /> -->
+                                    <!-- <AlertSuccess :form="form" message="Your changes have beend saved!" /> -->
+
+                                    <div class="mb-2">
+                                        <label  class="form-label">username</label>
+                                        <input v-model="form.name" type="text" name="name" class="form-control"
+                                        :class="{'is-invalid':form.errors.has('name')}">
+                                        <HasError :form="form" field="name" />
                                     </div>
-                                    <div class="form-group">
-                                        <div class="avatar">
-                                            <img class="avatar-img rounded" src="assets/img/user/user.jpg" alt="">
-                                        </div>
+                                    <div class="mb-2">
+                                        <label  class="form-label">Email</label>
+                                        <input  v-model="form.email" type="text" name="email" class="form-control"
+                                               :class="{'is-invalid':form.errors.has('email')}">
+                                        <HasError :form="form" field="email" />
                                     </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label">Password</label>
+                                        <input  v-model="form.password" type="text" name="password" class="form-control"
+                                               :class="{'is-invalid':form.errors.has('password')}">
+                                        <HasError :form="form" field="password" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Bio</label>
+                                        <textarea v-model="form.bio" type="text" name="bio" class="form-control"
+                                                :class="{'is-invalid':form.errors.has('bio')}">
+                                        </textarea>
+
+                                        <HasError :form="form" field="bio" />
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label">Type</label>
+                                        <select v-model="form.type" type="text" name="username" class="form-control"
+                                               :class="{'is-invalid':form.errors.has('type')}">
+                                            <option value="">Select User Role</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="user">Standard User</option>
+                                            <option value="author">Author</option>
+                                        </select>
+                                        <HasError :form="form" field="type" />
+                                    </div>
+
+
                                     <div class="mt-4">
                                         <button class="btn btn-primary" name="form_submit" value="submit"
                                                 type="submit">Save Changes</button>
@@ -237,9 +244,58 @@
 </template>
 
 <script>
+    import Form from 'vform'
+    import { Button, HasError, AlertError } from 'vform/src/components/bootstrap5'
+
     export default {
-        name: "Users"
+        components: {
+            Button, HasError, AlertError
+        },
+        name: "Users",
+        data: () => ({
+            users:[],
+            form: new Form({
+                username: '',
+
+                name:'',
+                email:'',
+                password:'',
+                type:'',
+                bio:'',
+                photo:'',
+            }),
+
+
+
+        }),
+        mounted() {
+          console.log('Component Mounted')
+        },
+        methods: {
+            async createUser () {
+                const response = await this.form.post('/api/users/store')
+                // ...
+            },
+            loadUsers(){
+              axios.get('/api/users/get').then((res)=>{
+                        this.users=res.data
+              })
+            },
+            getHumanDate : function (date) {
+                return moment(date).format('MMMM Do YYYY, h:mm:ss a');
+            }
+        },
+        created() {
+            this.loadUsers()
+        },
+        filters: {
+            moment: function (date) {
+                return moment(date).format('MMMM Do YYYY, h:mm:ss a');
+            }
+        }
     }
+
+
 </script>
 
 <style scoped>
